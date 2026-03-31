@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>25</java.version>
-		<spring-ai.version>2.0.0-M3</spring-ai.version>
+		<spring-ai.version>2.0.0-M4</spring-ai.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -46,8 +46,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springaicommunity</groupId>
-			<artifactId>mcp-client-security-boot</artifactId>
-			<version>0.1.4</version>
+			<artifactId>mcp-client-security-spring-boot</artifactId>
+			<version>0.1.5</version>
 		</dependency>
 
 		<dependency>

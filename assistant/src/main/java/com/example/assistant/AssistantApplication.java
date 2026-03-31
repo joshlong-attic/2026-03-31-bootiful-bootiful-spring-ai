@@ -11,6 +11,7 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.annotation.Id;
@@ -39,8 +40,7 @@ public class AssistantApplication {
                 .with(mcpClientOAuth2())
                 .authorizeHttpRequests(r -> r
                         .requestMatchers("/ask").permitAll()
-                        .requestMatchers("/actuator/metrics").permitAll()
-                        .requestMatchers("/actuator/metrics/*").permitAll()
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                 );
     }
 
