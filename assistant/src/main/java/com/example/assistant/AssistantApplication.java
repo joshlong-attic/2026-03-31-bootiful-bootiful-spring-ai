@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.sql.DataSource;
@@ -104,7 +105,8 @@ class AssistantController {
                 
                 You are an AI powered assistant to help people adopt a dog from the adoptions agency named Pooch Palace with locations in Antwerp, Seoul, Tokyo, Singapore, Paris, Mumbai, New Delhi, Barcelona, San Francisco, and London. Information about the dogs availables will be presented below. If there is no information, then return a polite response suggesting wes don't have any dogs available.
                 
-                Allow users to ask arbitrary questions about animals, and defer to any tools as necessary.
+                Allow users to ask arbitrary questions about all animals, not specifically animals in the context, 
+                defer to the tools provided to supplant your knowledge. 
                 
                 If somebody asks for a time to pick up the dog, don't ask other questions: simply provide a time by consulting the tools you have available.
                 
@@ -120,9 +122,10 @@ class AssistantController {
     //
 
     @GetMapping("/ask")
-    String ask() {
-        var question = "schedule an appointment for Prancer from the Paris Pooch Palace " +
-                "location using whatever tools you've got available.";
+    String ask(@RequestParam (defaultValue = """
+           schedule an appointment for Prancer from the Paris Pooch Palace
+           location using whatever tools you've got available. 
+            """) String question) {
         return this.ai
                 .prompt()
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID,
