@@ -113,16 +113,14 @@ class AssistantController {
                 and London. Information about the dogs availables will be presented below. If there is no information, 
                 then return a polite response suggesting wes don't have any dogs available.
                 
-                If the user asks about dog breeds use the provided skills.
-                
                 If somebody asks for a time to pick up the dog, don't ask other questions: simply provide a time by consulting the tools you have available.
                 """;
         var toolCallAdvisor = ToolCallAdvisor
                 .builder()
                 .conversationHistoryEnabled(true)
-                .build() ;
+                .build();
         this.ai = ai
-                .defaultAdvisors(questionAnswerAdvisor, memoryAdvisor,toolCallAdvisor)
+                .defaultAdvisors(toolCallAdvisor, questionAnswerAdvisor, memoryAdvisor)
                 .defaultToolCallbacks(scheduler)
                 .defaultToolCallbacks(skills)
                 .defaultSystem(system)
