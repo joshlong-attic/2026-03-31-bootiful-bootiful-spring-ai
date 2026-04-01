@@ -117,12 +117,8 @@ class AssistantController {
                 
                 If somebody asks for a time to pick up the dog, don't ask other questions: simply provide a time by consulting the tools you have available.
                 """;
-        var toolCallAdvisor = ToolCallAdvisor
-                .builder()
-                .conversationHistoryEnabled(true)
-                .build();
         this.ai = ai
-                .defaultAdvisors(toolCallAdvisor, questionAnswerAdvisor, memoryAdvisor)
+                .defaultAdvisors(questionAnswerAdvisor, memoryAdvisor)
                 .defaultToolCallbacks(scheduler)
                 .defaultToolCallbacks(skills)
                 .defaultSystem(system)
