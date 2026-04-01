@@ -3,10 +3,12 @@ package com.example.assistant;
 import org.springaicommunity.agent.tools.SkillsTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.ToolCallAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.SpringApplication;
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.sql.DataSource;
+
+import java.util.List;
 
 import static org.springaicommunity.mcp.security.client.sync.config.McpClientOAuth2Configurer.mcpClientOAuth2;
 
@@ -84,17 +88,19 @@ class AssistantController {
     AssistantController(
             ToolCallbackProvider scheduler,
             QuestionAnswerAdvisor questionAnswerAdvisor,
-//            DogRepository repository,
-//            VectorStore vectorStore,
+            DogRepository repository,
+            VectorStore vectorStore,
             PromptChatMemoryAdvisor memoryAdvisor,
             ChatClient.Builder ai) {
 
-//        repository.findAll().forEach(dog -> {
-//            var dogument = new Document("id: %s, name: %s, description: %s".formatted(
-//                    dog.id(), dog.name(), dog.description()
-//            ));
-//            vectorStore.add(List.of(dogument));
-//        });
+        if (false) {
+            repository.findAll().forEach(dog -> {
+                var dogument = new Document("id: %s, name: %s, description: %s".formatted(
+                        dog.id(), dog.name(), dog.description()
+                ));
+                vectorStore.add(List.of(dogument));
+            });
+        }
 
         var skills = SkillsTool
                 .builder()
@@ -102,29 +108,33 @@ class AssistantController {
                 .build();
 
         var system = """
+                You are an AI powered assistant to help people adopt a dog from the adoptions agency named Pooch Palace 
+                with locations in Antwerp, Seoul, Tokyo, Singapore, Paris, Mumbai, New Delhi, Barcelona, San Francisco, 
+                and London. Information about the dogs availables will be presented below. If there is no information, 
+                then return a polite response suggesting wes don't have any dogs available.
                 
-                You are an AI powered assistant to help people adopt a dog from the adoptions agency named Pooch Palace with locations in Antwerp, Seoul, Tokyo, Singapore, Paris, Mumbai, New Delhi, Barcelona, San Francisco, and London. Information about the dogs availables will be presented below. If there is no information, then return a polite response suggesting wes don't have any dogs available.
-                
-                Allow users to ask arbitrary questions about all animals, not specifically animals in the context, 
-                defer to the tools provided to supplant your knowledge. 
+                If the user asks about dog breeds use the provided skills.
                 
                 If somebody asks for a time to pick up the dog, don't ask other questions: simply provide a time by consulting the tools you have available.
-                
                 """;
+        var toolCallAdvisor = ToolCallAdvisor
+                .builder()
+                .conversationHistoryEnabled(true)
+                .build() ;
         this.ai = ai
-                .defaultAdvisors(questionAnswerAdvisor, memoryAdvisor)
+                .defaultAdvisors(questionAnswerAdvisor, memoryAdvisor,toolCallAdvisor)
                 .defaultToolCallbacks(scheduler)
                 .defaultToolCallbacks(skills)
                 .defaultSystem(system)
                 .build();
     }
 
-    //
+    // what are some amusing or very odd differences between the chihuahua and poodle breeds?
 
     @GetMapping("/ask")
-    String ask(@RequestParam (defaultValue = """
-           schedule an appointment for Prancer from the Paris Pooch Palace
-           location using whatever tools you've got available. 
+    String ask(@RequestParam(defaultValue = """
+            schedule an appointment for Prancer from the Paris Pooch Palace
+            location using whatever tools you've got available. 
             """) String question) {
         return this.ai
                 .prompt()

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @SpringBootApplication
 public class SchedulerApplication {
@@ -29,15 +30,13 @@ class DogAdoptionScheduler {
     DogAdoptionSchedule schedule(
             @McpToolParam(description = "the id of the dog") int dogId,
             @McpToolParam(description = "the name of the dog") String dogName) {
-        var das = new DogAdoptionSchedule(Instant.now()
-                .plus(3, ChronoUnit.DAYS),
-                SecurityContextHolder
-                        .getContextHolderStrategy()
-                        .getContext()
-                        .getAuthentication()
-                        .getName()
-        );
-        IO.println("schedulign " + dogId + '/' + dogName + " for " + das);
+        var authentication = Objects.requireNonNull(SecurityContextHolder
+                .getContextHolderStrategy()
+                .getContext()
+                .getAuthentication());
+        var instant = Instant.now().plus(3, ChronoUnit.DAYS);
+        var das = new DogAdoptionSchedule(instant, authentication.getName());
+        IO.println("scheduling " + dogId + '/' + dogName + " for " + das);
         return das;
     }
 
